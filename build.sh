@@ -8,7 +8,7 @@ mkdir -p dist/store
 # Compile and process assembly files
 wine "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/CPU Can Use All Orbs.asm" && python "compiler/gecko.py" a.out 801C986C tmp/cpu_can_use_all_orbs.txt1
 wine "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Custom Orb Code.asm" && python "compiler/gecko.py" a.out 801D644C tmp/custom_orb_code.txt1
-wine "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Orb Shells.asm" && python "compiler/gecko.py" a.out 8024ABB8 tmp/orb_shells.txt1 -ow
+wine "compiler/codewrite/powerpc-gekko-as.exe" -termka32 -mbig -mregnames -mgekko "src/asm/Orb Shells.asm" && python "compiler/gecko.py" a.out 8024ABB8 tmp/orb_shells.txt1 -ow
 
 wine "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Bowser Orb/Bowser Orb Rewrite.asm" && python "compiler/gecko.py" a.out 801BE730 tmp/bowser_orb_rewrite.txt1
 wine "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Bowser Orb/Bowser Orb Pointer.asm" && python "compiler/gecko.py" a.out 80249B64 tmp/bowser_orb_pointer.txt1 -ow
@@ -33,6 +33,10 @@ wine "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "sr
 wine "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Soluna Orb/Soluna Orb Pointer.asm" && python "compiler/gecko.py" a.out 80249C7C tmp/soluna_orb_pointer.txt1 -ow
 
 wine "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Wacky Watch Orb/Wacky Watch Orb Pointer.asm" && python "compiler/gecko.py" a.out 80249CCC tmp/wacky_watch_orb_pointer.txt1 -ow
+
+wine "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Last 5 Turns/L5T Multiplier.asm" && python "compiler/gecko.py" a.out 8015F1E8 tmp/l5t_multiplier.txt1
+wine "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Last 5 Turns/L5T Byte Hook.asm" && python "compiler/gecko.py" a.out 80175910 tmp/lt5_byte_hook.txt1
+
 
 # Copy the text file
 cp "src/asm/Debug Orb Enablers.txt" tmp/debug_orb_enablers.txt1
