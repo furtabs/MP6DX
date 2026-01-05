@@ -13,7 +13,7 @@ mkdir dist\store
 
 "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Chance Orb/Chance Orb Pointer.asm" && python "compiler/gecko.py" a.out 80249B3C tmp/chance_orb_pointer.txt1 -ow
 
-"compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Chomp Call/Chomp Call Orb Pointer.asm" && python "compiler/gecko.py" a.out 80249CA4 tmp/chomp_call_orb_pointer.txt1 -ow
+"compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Chomp Call Orb/Chomp Call Orb Pointer.asm" && python "compiler/gecko.py" a.out 80249CA4 tmp/chomp_call_orb_pointer.txt1 -ow
 
 "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/DK Orb/DK Orb Pointer.asm" && python "compiler/gecko.py" a.out 80249B8C tmp/dk_orb_pointer.txt1 -ow
 

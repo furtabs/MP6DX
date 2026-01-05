@@ -4,7 +4,7 @@ rlwinm r24, r0, 25, 31, 31
 lis r15, 0x8026
 ori r15, r15, 0x5B79
 lbz r15, 0(r15)
-cmpwi r15, 0x1
+cmplwi r15, 0x2
 bne end
 lhz r0, 48(r31)
 cmplwi r0, 2
