@@ -1,7 +1,7 @@
 @echo off
 title Mario Party 6 - DX Patcher
 
-set VERSION=25.10.27
+set VERSION=26.01.05
 
 echo = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 echo Mario Party 6 - DX Patcher!
