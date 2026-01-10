@@ -33,9 +33,9 @@ wine "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "sr
 
 wine "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Wacky Watch Orb/Wacky Watch Orb Pointer.asm" && python "compiler/gecko.py" a.out 80249CCC tmp/wacky_watch_orb_pointer.txt1 -ow
 
-wine "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Last 5 Turns/L5T Multiplier.asm" && python "compiler/gecko.py" a.out 8015F1E8 tmp/l5t_multiplier.txt1
+wine "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Last 5 Turns/L5T Multiplier.asm" && python "compiler/gecko.py" a.out 8015EDEC tmp/l5t_multiplier.txt1
+wine "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Last 5 Turns/L5T Multiplier If Nop.asm" && python "compiler/gecko.py" a.out 8015EDF0 tmp/l5t_multiplier.txt1
 wine "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Last 5 Turns/L5T Byte Hook.asm" && python "compiler/gecko.py" a.out 80175910 tmp/lt5_byte_hook.txt1
-
 
 # Copy the text file
 cp "src/asm/Debug Orb Enablers.txt" tmp/debug_orb_enablers.txt1
