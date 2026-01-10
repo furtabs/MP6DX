@@ -6,8 +6,6 @@ mkdir dist\store
 
 "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/CPU Can Use All Orbs.asm" && python "compiler/gecko.py" a.out 801C986C tmp/cpu_can_use_all_orbs.txt1
 "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Custom Orb Code.asm" && python "compiler/gecko.py" a.out 801D644C tmp/custom_orb_code.txt1
-"compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Orb Shells.asm" && python "compiler/gecko.py" a.out 8024ABB8 tmp/orb_shells.txt1 -ow
-
 "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Bowser Orb/Bowser Orb Rewrite.asm" && python "compiler/gecko.py" a.out 801BE730 tmp/bowser_orb_rewrite.txt1
 "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Bowser Orb/Bowser Orb Pointer.asm" && python "compiler/gecko.py" a.out 80249B64 tmp/bowser_orb_pointer.txt1 -ow
 
@@ -37,6 +35,8 @@ mkdir dist\store
 
 copy "src\asm\Debug Orb Enablers.txt" tmp\debug_orb_enablers.txt1
 copy "src\asm\Orb Tables.txt" tmp\orb_tables.txt1
+copy "src\asm\Orb Shells.txt" tmp\orb_shells.txt1
+
 del a.out
 
 cd tmp
