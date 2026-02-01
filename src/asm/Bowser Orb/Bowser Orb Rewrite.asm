@@ -26,7 +26,6 @@ b contStart
 
 p1Ori:
 ori r19, r19, 0x575A
-b contStart
 
 contStart:
 lbz r19, 0(r19)

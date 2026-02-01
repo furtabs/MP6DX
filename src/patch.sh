@@ -3,7 +3,7 @@
 # Mario Party 6 - DX Patcher for Linux
 # Uses Wine to run Windows executables
 
-VERSION="26.01.11"
+VERSION="26.02.01"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Function to check if Wine is installed
