@@ -11,3 +11,4 @@ A "technically advanced" mod for Mario Party 6.
 - Duel Orb - Start a Duel event against another player.
 - Soluna Orb - Change the day/night cycle
 - Watch Orb - Magically change the next turn to Last 5
+- Poison Shroom Orb - Poison a foe who lands on it for the next turn.
