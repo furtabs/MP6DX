@@ -1,0 +1,4 @@
+# Insert at 0x802495DB
+
+.word 0x0200
+.word 0x0000
