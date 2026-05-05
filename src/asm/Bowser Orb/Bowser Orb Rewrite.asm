@@ -39,7 +39,7 @@ mtctr r29
 li r3, 4
 bctrl # run frandmod
 
-cmpw r3, r29 # if player id matches frandmod
+cmpw r3, r19 # if player id matches frandmod
 beq reroll
 
 cmpwi r3, 0 # if frandmod = 0
