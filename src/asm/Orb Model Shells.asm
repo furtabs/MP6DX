@@ -28,7 +28,6 @@ beq cont
 b end
 
 cont:
-# if orb is -0x6 (default green orbs)
 cmpwi r21, 0x0
 beq green
 cmpwi r21, 0x1
@@ -43,12 +42,8 @@ cmpwi r21, 0x5
 beq green
 cmpwi r21, 0x6
 beq green
-
-# if orb is 0x7 (cursed)
 cmpwi r21, 0x7
 beq yellow
-
-# if orb is -0x11 (default yellow orbs)
 cmpwi r21, 0xA
 beq yellow
 cmpwi r21, 0xB
@@ -63,8 +58,6 @@ cmpwi r21, 0x10
 beq yellow
 cmpwi r21, 0x11
 beq yellow
-
-# if orb is -0x19 (default red orbs)
 cmpwi r21, 0x14
 beq red
 cmpwi r21, 0x15
@@ -77,14 +70,10 @@ cmpwi r21, 0x18
 beq red
 cmpwi r21, 0x19
 beq red
-
-# if orb is -0x1F
 cmpwi r21, 0x1E
 beq aqua
 cmpwi r21, 0x1F
 beq aqua
-
-# if orb is -0x32
 cmpwi r21, 0x29
 beq purple
 cmpwi r21, 0x2A
@@ -97,12 +86,12 @@ cmpwi r21, 0x2E
 beq purple
 cmpwi r21, 0x32
 beq purple
-
-# if orb is -0x34 (default green orbs)
 cmpwi r21, 0x33
 beq green
 cmpwi r21, 0x34
 beq green
+cmpwi r21, 0x35
+beq purple
 
 b end
 

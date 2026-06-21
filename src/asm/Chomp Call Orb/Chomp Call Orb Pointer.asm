@@ -1,4 +1,4 @@
 # Insert at 0x80249CA4
 
 .word 0x000C
-.word 0x005B
+.word 0x0064

@@ -1,6 +1,5 @@
 # insert at 801CAAD8
 
-# if orb is -0x6 (default green orbs)
 cmpwi r3, 0x0
 beq green
 cmpwi r3, 0x1
@@ -15,12 +14,8 @@ cmpwi r3, 0x5
 beq green
 cmpwi r3, 0x6
 beq green
-
-# if orb is 0x7 (cursed)
 cmpwi r3, 0x7
 beq yellow
-
-# if orb is -0x11 (default yellow orbs)
 cmpwi r3, 0xA
 beq yellow
 cmpwi r3, 0xB
@@ -35,8 +30,6 @@ cmpwi r3, 0x10
 beq yellow
 cmpwi r3, 0x11
 beq yellow
-
-# if orb is -0x19 (default red orbs)
 cmpwi r3, 0x14
 beq red
 cmpwi r3, 0x15
@@ -49,14 +42,10 @@ cmpwi r3, 0x18
 beq red
 cmpwi r3, 0x19
 beq red
-
-# if orb is -0x1F
 cmpwi r3, 0x1E
 beq aqua
 cmpwi r3, 0x1F
 beq aqua
-
-# if orb is -0x32
 cmpwi r3, 0x29
 beq purple
 cmpwi r3, 0x2A
@@ -69,12 +58,12 @@ cmpwi r3, 0x2E
 beq purple
 cmpwi r3, 0x32
 beq purple
-
-# if orb is -0x34 (default green orbs)
 cmpwi r3, 0x33
 beq green
 cmpwi r3, 0x34
 beq green
+cmpwi r21, 0x35
+beq purple
 
 b end
 

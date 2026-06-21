@@ -21,7 +21,7 @@
 19 - Paratroopa Orb (Red)
 1E - Snack Orb (Aqua)
 1F - Boo-away Orb (Aqua)
-28 - Free
+28 - NULL
 29 - Duel Orb (Purple)
 2A - Chance Time Orb (Purple)
 2B - Bowser Event (Purple)
@@ -32,4 +32,5 @@
 32 - Soluna Orb (Purple)
 33 - Chain-Chomp Orb (Green)
 34 - Wacky Watch Orb (Green)
+35 - Battle Orb (Purple) # June 2026 Patch
 FF - Empty Slot
