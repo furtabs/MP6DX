@@ -8,7 +8,7 @@ bne end
 li r5, 0x0
 stb r5, 0(r14)
 lis r14, 0x801F
-ori r14, r14, 0x0184
+ori r14, r14, 0x0178
 mtctr r14
 bctr
 
