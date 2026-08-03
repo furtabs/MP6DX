@@ -1,15 +1,15 @@
 # Insert at 801BE730
 
-lwz r29, 0(r28) # og instr
+lwz r3, 0(r28) # og instr
 lis r19, 0x8026
 
-cmpwi r29, 0
+cmpwi r3, 0
 beq p1Ori
 
-cmpwi r29, 1
+cmpwi r3, 1
 beq p2Ori
 
-cmpwi r29, 2
+cmpwi r3, 2
 beq p3Ori
 
 p4Ori:
@@ -33,6 +33,7 @@ cmpwi r19, 0xFF
 bne og
 
 reroll:
+mr r19, r3 
 lis r29, 0x8003
 ori r29, r29, 0xFCD4
 mtctr r29

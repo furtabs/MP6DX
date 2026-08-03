@@ -87,7 +87,8 @@ if not args.ow:
             and lines[0].startswith("C2")
             and lines[0].endswith("00000002")
             and lines[-1] == "60000000 00000000"):
-        formatted_code = formatted_code.replace("00000002", "00000001", 1)
+        lines[0] = lines[0][:-8] + "00000001"
+        formatted_code = "\n".join(lines) + "\n"
 
 # Write to dist/code.txt
 with open(args.output_file, "w") as output_file:
