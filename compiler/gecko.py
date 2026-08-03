@@ -80,6 +80,15 @@ if not args.ow and formatted_code.strip().endswith("60000000 00000000"):
     new_address = hex(int(address_part, 16) + 1)[2:].upper().zfill(8)  # Add 1 and format
     formatted_code = formatted_code.replace(address_part, new_address, 1)
 
+# C2 with exactly 2 lines ending in nop needs count 1, not 2
+if not args.ow:
+    lines = formatted_code.strip().splitlines()
+    if (len(lines) >= 2
+            and lines[0].startswith("C2")
+            and lines[0].endswith("00000002")
+            and lines[-1] == "60000000 00000000"):
+        formatted_code = formatted_code.replace("00000002", "00000001", 1)
+
 # Write to dist/code.txt
 with open(args.output_file, "w") as output_file:
     output_file.write(formatted_code)
