@@ -90,7 +90,7 @@ cmpwi r21, 0x33
 beq green
 cmpwi r21, 0x34
 beq green
-cmpwi r21, 0x35
+cmpwi r21, 0x36
 beq purple
 
 b end

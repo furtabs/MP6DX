@@ -62,7 +62,7 @@ cmpwi r31, 0x33
 beq green
 cmpwi r31, 0x34
 beq green
-cmpwi r31, 0x35
+cmpwi r31, 0x36
 beq purple
 
 b end
