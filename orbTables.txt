@@ -32,5 +32,5 @@
 32 - Soluna Orb (Purple)
 33 - Chain-Chomp Orb (Green)
 34 - Wacky Watch Orb (Green)
-35 - Battle Orb (Purple) # June 2026 Patch
+36 - Battle Orb (Purple) # June 2026 Patch
 FF - Empty Slot
