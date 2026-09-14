@@ -6,6 +6,7 @@ mkdir dist\store
 
 "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/CPU Can Use All Orbs.asm" && python "compiler/gecko.py" a.out 801C986C tmp/cpu_can_use_all_orbs.txt1
 "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Custom Orb Code.asm" && python "compiler/gecko.py" a.out 801D644C tmp/custom_orb_code.txt1
+"compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Debug Enablers.asm" && python "compiler/gecko.py" a.out 801D644D tmp/debug_enablers.txt1
 "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Max Capsules.asm" && python "compiler/gecko.py" a.out 801CAB84 tmp/max_capsules.txt1
 "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Orb Model Shells.asm" && python "compiler/gecko.py" a.out 801CCD88 tmp/orb_model_shells.txt1
 "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Orb Icon Shells.asm" && python "compiler/gecko.py" a.out 801CAAD8 tmp/orb_icon_shells.txt1

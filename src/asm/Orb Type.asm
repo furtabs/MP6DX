@@ -62,12 +62,13 @@ cmpwi r31, 0x33
 beq green
 cmpwi r31, 0x34
 beq green
-cmpwi r31, 0x36
+cmpwi r31, 0x35
 beq purple
 
 b end
 
 green:
+purple:
 li r3, 0
 b end
 
@@ -80,7 +81,6 @@ li r3, 2
 b end
 
 aqua:
-purple:
 li r3, 3
 b end
 
