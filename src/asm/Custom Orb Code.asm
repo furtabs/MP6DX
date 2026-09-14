@@ -15,83 +15,23 @@ beq battleOrb
 b notCustomOrb
 
 dayNightOrb:
-# Flip state + BGM without board tear-down
+# TimeChangeHook ends on FadeOut + HuDataDirClose — mid-CapCall that
+# sticks black and never reloads sky/models. Real board update needs
+# mbChangeTime's soft reload (LoadTime + lights on re-init).
+# Fade out first so Sleep(-1) isn't frozen on a white mid-wipe.
+
+lis r3, 0x8020
+ori r3, r3, 0x68F8      # mbWipeFadeOut (waits until black)
+mtctr r3
+bctrl
+
+# Vanilla MBTimeRefresh: flip time, ExitReq, HuPrcSleep(-1).
+# Exit watch kills CapCall and reloads the board.
 lis r3, 0x8014
-ori r3, r3, 0xB99C      # mbChangeTimeSet
+ori r3, r3, 0xBA78      # mbChangeTime
 mtctr r3
 bctrl
-
-lis r3, 0x8016
-ori r3, r3, 0xE20C      # mbMusBoardPlay
-mtctr r3
-bctrl
-
-# Save camera (same pattern as last-5 mid-board effects)
-lis r3, 0x8015
-ori r3, r3, 0x0EAC      # mbCameraStackPush
-mtctr r3
-bctrl
-
-# Board TimeChangeHook — sky/models/telop (StarMoveHook-style)
-lis r3, 0x802C
-ori r3, r3, 0x0D10      # TimeChangeHook
-lwz r12, 0(r3)
-cmplwi r12, 0
-beq dayNightRestore
-mtctr r12
-bctrl
-
-# mbMain cleanup after NextTime
-lis r3, 0x8020
-ori r3, r3, 0x67EC      # mbTelopTimeChangeKill
-mtctr r3
-bctrl
-lis r3, 0x8015
-ori r3, r3, 0x301C      # mbCameraMoveStop
-mtctr r3
-bctrl
-
-dayNightRestore:
-# Undo wipe + restore pre-hook camera (last5 pattern)
-lis r3, 0x8015
-ori r3, r3, 0x1400      # mbCameraFocusReset
-mtctr r3
-bctrl
-li r3, 0
-lis r12, 0x8015
-ori r12, r12, 0x1058    # mbCameraStackPop
-mtctr r12
-bctrl
-lis r3, 0x8020
-ori r3, r3, 0x6B88      # mbWipeDissolveFadeIn
-mtctr r3
-bctrl
-
-# Snap view back to the active player
-lis r4, 0x8026
-ori r4, r4, 0x5B70      # GwSystem
-lbz r3, 0xA(r4)
-extsb r3, r3
-cmpwi r3, 0
-blt dayNightSync
-cmpwi r3, 4
-bge dayNightSync
-li r4, 0
-lis r12, 0x8015
-ori r12, r12, 0x3264    # mbCameraPlayerViewSetFast
-mtctr r12
-bctrl
-
-dayNightSync:
-# nextTime = curTime so mbMain won't replay the cinematic
-lis r4, 0x8026
-ori r4, r4, 0x5B70      # GwSystem
-lbz r0, 0x10(r4)
-extrwi r3, r0, 1, 25
-rlwimi r0, r3, 7, 24, 24
-stb r0, 0x10(r4)
-extsh r0, r3
-sth r0, -0x7468(r13)    # GwMgTime@sda21
+# unreachable — sleep never returns
 b finishCustomCapsule
 
 chompyOrb:

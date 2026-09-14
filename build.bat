@@ -10,7 +10,7 @@ mkdir dist\store
 "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Max Capsules.asm" && python "compiler/gecko.py" a.out 801CAB84 tmp/max_capsules.txt1
 "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Orb Model Shells.asm" && python "compiler/gecko.py" a.out 801CCD88 tmp/orb_model_shells.txt1
 "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Orb Icon Shells.asm" && python "compiler/gecko.py" a.out 801CAAD8 tmp/orb_icon_shells.txt1
-"compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Orb Type.asm" && python "compiler/gecko.py" a.out 801C93AC tmp/orb_icon_shells.txt1
+"compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Orb Type.asm" && python "compiler/gecko.py" a.out 801C93AC tmp/orb_type.txt1
 
 "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Battle Orb/Battle Orb Function.asm" && python "compiler/gecko.py" a.out 801F0160 tmp/battle_orb_function.txt1
 "compiler/codewrite/powerpc-gekko-as.exe" -a32 -mbig -mregnames -mgekko "src/asm/Battle Orb/Battle Orb Pointer.asm" && python "compiler/gecko.py" a.out 80249CF4 tmp/battle_orb_pointer.txt1 -ow
