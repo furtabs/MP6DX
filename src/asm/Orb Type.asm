@@ -68,7 +68,6 @@ beq purple
 b end
 
 green:
-purple:
 li r3, 0
 b end
 
@@ -81,6 +80,7 @@ li r3, 2
 b end
 
 aqua:
+purple:
 li r3, 3
 b end
 
