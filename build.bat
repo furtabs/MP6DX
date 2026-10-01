@@ -58,9 +58,9 @@ for %%f in (*.txt1) do (
 
 cd ..
 
-xcopy /E /I tools dist\tools
-xcopy /E /I src\files dist\store\files
-xcopy /E /I src\sys dist\store\sys
+xcopy /E /I /Q tools dist\tools /Y
+xcopy /E /I /Q src\files dist\store\files /Y
+xcopy /E /I /Q src\sys dist\store\sys /Y
 
 copy src\patch.bat dist\
 copy src\patch.sh dist\
