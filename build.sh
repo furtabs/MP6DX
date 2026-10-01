@@ -60,6 +60,7 @@ cd ..
 
 cp -r tools dist/
 cp -r src/files dist/store/
+cp -r src/sys dist/store/
 
 cp src/patch.bat dist/
 cp src/patch.sh dist/

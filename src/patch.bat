@@ -73,7 +73,7 @@ for %%F in ("%~dp0*.rvz") do (
     echo = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
     echo Rebuilding! This may take awhile depending on computer speed...
     echo = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-    "tools/pyisotools" tmp/root/ B "--dest=../game.iso"
+    "tools/pyisotools" tmp/root/ B "--dest=../game.iso" --gamename="Mario Party 6 DX" --gameid="GP6DX1" --newinfo
     goto end
 )
 
@@ -100,7 +100,7 @@ for %%F in ("%~dp0*.iso") do (
     echo = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
     echo Rebuilding! This may take awhile depending on computer speed...
     echo = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-    "tools/pyisotools" tmp/root/ B "--dest=../../tmp/game.iso"
+    "tools/pyisotools" tmp/root/ B "--dest=../../tmp/game.iso" --gamename="Mario Party 6 DX" --gameid="GP6DX1" --newinfo
     goto end
 )
 
