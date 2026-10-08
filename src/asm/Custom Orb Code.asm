@@ -405,12 +405,455 @@ sth r0, -0x7468(r13)    # GwMgTime@sda21
 b finishCustomCapsule
 
 chompyOrb:
-lis r3, 0x802C # StarMoveHook@h
-ori r3, r3, 0x0E6C # StarMoveHook@l
-lwz r3, 0(r3) # Load pointer StarMoveHook to StarMoveHook
-mtctr r3
-bctrl # run function
+stwu r1, -0x50(r1)
+mflr r0
+stw r0, 0x54(r1)
+stw r31, 0x4c(r1)
+stw r30, 0x48(r1)
+stw r29, 0x44(r1)
+stw r28, 0x40(r1)
+# The fly-over only exists on Towering Treetop and E. Gadd's Garage.
+lis r3, 0x8026
+ori r3, r3, 0x5B70      # GwSystem
+lbz r3, 8(r3)
+clrlwi r3, r3, 27
+cmpwi r3, 2
+bge chompyHookOnly
+lis r3, 0x802C
+ori r3, r3, 0x0E6C      # StarMoveHook
+lwz r3, 0(r3)
+cmplwi r3, 0
+beq chompyDone
+lwz r3, -0x6860(r13)    # StarMasuNext, still the old space
+extsh r31, r3
+cmpwi r31, 0
+blt chompyHookOnly
+mr r3, r31
+addi r4, r1, 0x20
+lis r12, 0x8017
+ori r12, r12, 0x7948    # MBMasuPosGet
+mtctr r12
+bctrl
+lis r12, 0x8020
+ori r12, r12, 0x68F8    # MBWipeFadeOut
+mtctr r12
+bctrl
+li r29, 0
+chompyKillOld:
+slwi r0, r29, 2
+lis r3, 0x802B
+ori r3, r3, 0xA368      # star object table
+lwzx r3, r3, r0
+cmplwi r3, 0
+beq chompyKillNext
+lwz r4, 0x5c(r3)
+lwz r0, 0xc(r4)
+cmpw r0, r31
+bne chompyKillNext
+mr r3, r29
+li r4, 0
+lis r12, 0x8017
+ori r12, r12, 0xF720    # MBStarObjDispSet
+mtctr r12
+bctrl
+mr r3, r29
+lis r12, 0x8017
+ori r12, r12, 0xF6E4    # MBStarObjKill
+mtctr r12
+bctrl
+chompyKillNext:
+addi r29, r29, 1
+cmpwi r29, 0x3e7
+blt chompyKillOld
+li r3, 2
+lis r12, 0x8000
+ori r12, r12, 0xE26C    # HuPrcSleep
+mtctr r12
+bctrl
+bl chompyCallHook
+lwz r3, -0x6860(r13)
+extsh r30, r3
+cmpw r30, r31
+beq chompyNoMove
+mr r3, r30
+addi r4, r1, 0x2c
+lis r12, 0x8017
+ori r12, r12, 0x7948    # MBMasuPosGet
+mtctr r12
+bctrl
+li r3, -1
+stw r3, 0x38(r1)
+li r29, 0
+chompyFind:
+slwi r0, r29, 2
+lis r3, 0x802B
+ori r3, r3, 0xA368
+lwzx r3, r3, r0
+cmplwi r3, 0
+beq chompyFindNext
+lwz r4, 0x5c(r3)
+lwz r0, 0xc(r4)
+cmpw r0, r30
+beq chompyFound
+chompyFindNext:
+addi r29, r29, 1
+cmpwi r29, 0x3e7
+blt chompyFind
+b chompyFrame
+chompyFound:
+stw r29, 0x38(r1)
+mr r3, r29
+li r4, 0
+lis r12, 0x8017
+ori r12, r12, 0xF720    # MBStarObjDispSet
+mtctr r12
+bctrl
+chompyFrame:
+lis r3, 0x8026
+ori r3, r3, 0x5B70      # GwSystem
+lbz r0, 0x10(r3)
+extrwi r28, r0, 1, 25   # 0 day, 1 night
+lbz r3, 0xA(r3)
+extsb r29, r3
+cmpwi r29, 0
+blt chompyHost
+cmpwi r29, 4
+bge chompyHost
+mr r3, r29
+li r4, 1
+lfs f1, -0x59dc(r2)
+lfs f2, -0x59d8(r2)
+lis r5, 0x4000
+addi r5, r5, 1
+lis r12, 0x8015
+ori r12, r12, 0xC584    # MBPlayerMotionShiftSet
+mtctr r12
+bctrl
+mr r3, r29
+li r4, 2
+lis r12, 0x8015
+ori r12, r12, 0x3264    # MBCameraViewWarp
+mtctr r12
+bctrl
+chompyHost:
+lis r3, 0x8018
+ori r3, r3, 0x399C      # StarPauseHook
+lis r12, 0x8019
+ori r12, r12, 0x1D14    # MBPauseHookPush
+mtctr r12
+bctrl
+lis r3, 0x8024
+ori r3, r3, 0x7F84      # StarMasuGuidePos
+li r4, 4
+addi r5, r1, 8
+lis r12, 0x8014
+ori r12, r12, 0xDCDC    # MBPosNormto3D
+mtctr r12
+bctrl
+addi r3, r1, 8
+addi r4, r13, -0x7a0f   # StarMasuGuideMotTbl
+li r5, 1
+li r6, 0
+li r7, 1
+lis r12, 0x801E
+ori r12, r12, 0xCBC4    # MBGuideCreateFlag
+mtctr r12
+bctrl
+stw r3, -0x6868(r13)    # StarGuideObj
+cmplwi r3, 0
+beq chompyHudOff
+li r4, 1
+lis r12, 0x801E
+ori r12, r12, 0xCFA8    # MBGuideMotionNextSet
+mtctr r12
+bctrl
+chompyHudOff:
+li r3, 0
+lis r12, 0x8018
+ori r12, r12, 0xD3E8    # MBStatusDispForceSetAll
+mtctr r12
+bctrl
+lis r12, 0x8020
+ori r12, r12, 0x6988    # MBWipeFadeIn
+mtctr r12
+bctrl
+li r3, 1
+li r4, 0xc
+li r5, 0x7f
+li r6, 0
+lis r12, 0x8016
+ori r12, r12, 0xE338    # MBMusPlay
+mtctr r12
+bctrl
+li r3, 0x3b8
+lis r12, 0x8017
+ori r12, r12, 0x0980    # MBAudGuidePlay
+mtctr r12
+bctrl
+lwz r3, -0x6868(r13)
+cmplwi r3, 0
+beq chompyLine
+li r4, 0xc
+li r5, 1
+lis r12, 0x801E
+ori r12, r12, 0xD064    # MBGuideMotionShiftSet
+mtctr r12
+bctrl
+chompyLine:
+li r3, 4
+addis r4, r28, 0x27
+addi r4, r4, 0xc
+li r5, -1
+lis r12, 0x8016
+ori r12, r12, 0xBE40    # MBWinCreateTime
+mtctr r12
+bctrl
+mr r29, r3
+extsh r3, r29
+lis r12, 0x8016
+ori r12, r12, 0xCB24    # MBWinPause
+mtctr r12
+bctrl
+addi r3, r1, 0x20
+addi r4, r1, 0x2c
+li r5, 0x78
+lis r12, 0x8017
+ori r12, r12, 0x26A4    # MBStarScrollExec
+mtctr r12
+bctrl
+extsh r3, r29
+lis r12, 0x8016
+ori r12, r12, 0xBFE8    # MBWinKill
+mtctr r12
+bctrl
+lwz r29, 0x38(r1)
+cmpwi r29, 0
+blt chompyAfterStar
+mr r3, r29
+li r4, 1
+lis r12, 0x8017
+ori r12, r12, 0xF720    # MBStarObjDispSet
+mtctr r12
+bctrl
+slwi r0, r29, 2
+lis r3, 0x802B
+ori r3, r3, 0xA368
+lwzx r3, r3, r0
+cmplwi r3, 0
+beq chompyAfterStar
+lwz r31, 0x5c(r3)
+li r3, 1
+lbz r0, 0(r31)
+rlwimi r0, r3, 6, 25, 25
+stb r0, 0(r31)
+li r0, 0
+sth r0, 0x16(r31)
+sth r0, 0x20(r31)
+stb r0, 0x14(r31)
+li r3, 1
+lbz r0, 0(r31)
+rlwimi r0, r3, 3, 28, 28
+stb r0, 0(r31)
+li r0, 0
+stw r0, 0x1c(r1)
+lfs f0, 0x1c(r1)
+stfs f0, 0x40(r31)
+li r3, 1
+lbz r0, 0(r31)
+rlwimi r0, r3, 5, 26, 26
+stb r0, 0(r31)
+li r3, 1
+lbz r0, 0(r31)
+rlwimi r0, r3, 2, 29, 29
+stb r0, 0(r31)
+li r3, 0x447
+lis r12, 0x8017
+ori r12, r12, 0x0454    # MBAudFXPlay
+mtctr r12
+bctrl
+stw r3, 0x18(r1)
+li r3, 0x448
+lis r12, 0x8017
+ori r12, r12, 0x0454    # MBAudFXPlay
+mtctr r12
+bctrl
+lbz r0, 0(r31)
+rlwinm r0, r0, 28, 31, 31
+cmplwi r0, 1
+bne chompyWait
+lwz r3, 0x28(r31)
+extsh r3, r3
+cmpwi r3, 0
+blt chompyWait
+li r4, 1
+lis r12, 0x8016
+ori r12, r12, 0x94A4    # MBModelDispSet
+mtctr r12
+bctrl
+chompyWait:
+lis r12, 0x8000
+ori r12, r12, 0xE2EC    # HuPrcVSleep
+mtctr r12
+bctrl
+lbz r0, 0x14(r31)
+extsb r0, r0
+cmpwi r0, 1
+bne chompyWait
+lwz r3, 0x18(r1)
+lis r12, 0x8017
+ori r12, r12, 0x052C    # MBAudFXStop
+mtctr r12
+bctrl
+chompyAfterStar:
+li r3, 0x14
+lis r12, 0x8000
+ori r12, r12, 0xE26C    # HuPrcSleep
+mtctr r12
+bctrl
+li r3, 0x3b8
+lis r12, 0x8017
+ori r12, r12, 0x0980    # MBAudGuidePlay
+mtctr r12
+bctrl
+lwz r3, -0x6868(r13)
+cmplwi r3, 0
+beq chompyLine2
+li r4, 0xc
+li r5, 1
+lis r12, 0x801E
+ori r12, r12, 0xD064    # MBGuideMotionShiftSet
+mtctr r12
+bctrl
+chompyLine2:
+li r3, 4
+addis r4, r28, 0x27
+addi r4, r4, 0xe
+li r5, -1
+lis r12, 0x8016
+ori r12, r12, 0xBE40    # MBWinCreateTime
+mtctr r12
+bctrl
+lis r12, 0x8016
+ori r12, r12, 0xCDA8    # MBTopWinWait
+mtctr r12
+bctrl
+li r3, 1
+li r4, 0x3e8
+lis r12, 0x8016
+ori r12, r12, 0xE640    # MBMusFadeOutSpeed
+mtctr r12
+bctrl
+lis r12, 0x8020
+ori r12, r12, 0x68F8    # MBWipeFadeOut
+mtctr r12
+bctrl
+lis r4, 0x8026
+ori r4, r4, 0x5B70
+lbz r3, 0xA(r4)
+extsb r3, r3
+cmpwi r3, 0
+blt chompyHudOn
+cmpwi r3, 4
+bge chompyHudOn
+stw r3, 0x18(r1)
+li r4, 2
+lis r12, 0x8015
+ori r12, r12, 0x3264    # MBCameraViewWarp
+mtctr r12
+bctrl
+lwz r3, 0x18(r1)
+li r4, 0
+lis r12, 0x8018
+ori r12, r12, 0xD114    # MBStatusDispForceSet
+mtctr r12
+bctrl
+chompyHudOn:
+li r3, 1
+lis r12, 0x8018
+ori r12, r12, 0xD3E8    # MBStatusDispForceSetAll
+mtctr r12
+bctrl
+li r3, 1
+lis r12, 0x8018
+ori r12, r12, 0xD3E8    # MBStatusDispForceSetAll
+mtctr r12
+bctrl
+lwz r3, -0x6868(r13)
+cmplwi r3, 0
+beq chompyGuideClear
+lis r12, 0x801E
+ori r12, r12, 0xCC84    # MBGuideKill
+mtctr r12
+bctrl
+chompyGuideClear:
+li r0, 0
+stw r0, -0x6868(r13)
+li r3, 0x3c
+lis r12, 0x8000
+ori r12, r12, 0xE26C    # HuPrcSleep
+mtctr r12
+bctrl
+lis r12, 0x8016
+ori r12, r12, 0xE20C    # MBMusBoardPlay
+mtctr r12
+bctrl
+lis r3, 0x8018
+ori r3, r3, 0x399C      # StarPauseHook
+lis r12, 0x8019
+ori r12, r12, 0x1D38    # MBPauseHookPop
+mtctr r12
+bctrl
+chompyNoMove:
+lis r12, 0x8020
+ori r12, r12, 0x6988    # MBWipeFadeIn
+mtctr r12
+bctrl
+chompyFocus:
+lis r4, 0x8026
+ori r4, r4, 0x5B70      # GwSystem
+lbz r3, 0xA(r4)
+extsb r3, r3
+cmpwi r3, 0
+blt chompyDone
+cmpwi r3, 4
+bge chompyDone
+lis r12, 0x8015
+ori r12, r12, 0x154C    # MBCameraFocusPlayerSet
+mtctr r12
+bctrl
+lis r12, 0x8015
+ori r12, r12, 0x2FC4    # MBCameraMotionWait
+mtctr r12
+bctrl
+b chompyDone
+chompyHookOnly:
+bl chompyCallHook
+chompyDone:
+lwz r28, 0x40(r1)
+lwz r29, 0x44(r1)
+lwz r30, 0x48(r1)
+lwz r31, 0x4c(r1)
+lwz r0, 0x54(r1)
+mtlr r0
+addi r1, r1, 0x50
 b finishCustomCapsule
+
+chompyCallHook:
+stwu r1, -0x10(r1)
+mflr r0
+stw r0, 0x14(r1)
+lis r3, 0x802C
+ori r3, r3, 0x0E6C      # StarMoveHook
+lwz r12, 0(r3)
+cmplwi r12, 0
+beq chompyCallHookOut
+mtctr r12
+bctrl
+chompyCallHookOut:
+lwz r0, 0x14(r1)
+mtlr r0
+addi r1, r1, 0x10
+blr
 
 wackyWatchOrb:
 lis r3, 0x8026 # MaxTurn byte
