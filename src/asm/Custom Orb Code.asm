@@ -74,6 +74,283 @@ beq dayNightRestore
 mtctr r12
 bctrl
 
+# Clockwork Castle's sun direction and map brightness are day/night model files.
+# LightSetHook only rebuilds Bowser. Swap the castle meshes while the wipe is still out.
+lis r3, 0x802C
+ori r3, r3, 0x0CFC      # LightSetHook
+lwz r12, 0(r3)
+cmplwi r12, 0
+beq dayNightOther
+lwz r4, 0x40(r12)
+lis r3, 0x3880
+ori r3, r3, 0x1000      # li r4, 0x1000 just before MBSNpcCreate
+cmpw r4, r3
+bne dayNightOther
+lwz r4, 0x44(r12)
+rlwinm r4, r4, 0, 6, 29
+andis. r0, r4, 0x0200
+beq dayNightBlPos
+addis r4, r4, -0x400
+dayNightBlPos:
+add r4, r4, r12
+addi r4, r4, 0x44
+lis r3, 0x8015
+ori r3, r3, 0xF2B0      # MBSNpcCreate
+cmpw r4, r3
+bne dayNightOther
+
+lis r4, 0x8026
+ori r4, r4, 0x5B70      # GwSystem
+lbz r0, 0x10(r4)
+extrwi r3, r0, 1, 25    # curTime (1 = night)
+cmpwi r3, 0
+bne dayNightDirNight
+lis r3, 0xE1
+b dayNightDirRead
+dayNightDirNight:
+lis r3, 0xE2
+dayNightDirRead:
+lis r12, 0x8000
+ori r12, r12, 0x78C8    # HuDataDirRead
+mtctr r12
+bctrl
+cmpwi r3, 0
+beq dayNightTelop
+
+# Path links, gates, and the next-space arrows.
+lis r12, 0x8020
+ori r12, r12, 0x0524    # MBGateClose
+mtctr r12
+bctrl
+lis r12, 0x8017
+ori r12, r12, 0x4FA0    # MBMasuClose
+mtctr r12
+bctrl
+lis r4, 0x8026
+ori r4, r4, 0x5B70
+lbz r0, 0x10(r4)
+extrwi r3, r0, 1, 25
+cmpwi r3, 0
+bne dayNightMasuNight
+lis r3, 0xE1
+b dayNightMasuInit
+dayNightMasuNight:
+lis r3, 0xE2
+dayNightMasuInit:
+lis r12, 0x8017
+ori r12, r12, 0x4EBC    # MBMasuInit
+mtctr r12
+bctrl
+
+# Day/night scenery, then the path meshes. Offsets are from TimeChangeHook.
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+addis r3, r12, -1
+addi r3, r3, 0x7B60     # scenery kill A
+mtctr r3
+bctrl
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+subi r3, r12, 0x6BD8    # scenery kill B
+mtctr r3
+bctrl
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+subi r3, r12, 0x527C    # scenery kill C
+mtctr r3
+bctrl
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+subi r3, r12, 0x464C    # scenery kill D
+mtctr r3
+bctrl
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+subi r3, r12, 0xC1C     # path-mesh kill
+mtctr r3
+bctrl
+
+# Main board mesh. The kill routine's lis/addi still point at its model id.
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+addis r4, r12, -1
+addi r4, r4, 0x5428
+lwz r5, 0(r4)
+lwz r6, 4(r4)
+rlwinm r5, r5, 16, 0, 15
+extsh r6, r6
+add r4, r5, r6
+lha r3, 0(r4)
+cmpwi r3, 0
+blt dayNightMapCreate
+lis r12, 0x8016
+ori r12, r12, 0x9288    # MBModelKill
+mtctr r12
+bctrl
+
+dayNightMapCreate:
+lis r4, 0x8026
+ori r4, r4, 0x5B70
+lbz r0, 0x10(r4)
+extrwi r3, r0, 1, 25
+cmpwi r3, 0
+bne dayNightMapNight
+lis r3, 0xE1
+b dayNightMapNew
+dayNightMapNight:
+lis r3, 0xE2
+dayNightMapNew:
+ori r3, r3, 1           # board mesh for this time
+li r4, 0
+li r5, 0
+lis r12, 0x8016
+ori r12, r12, 0x8DC4    # MBModelCreate
+mtctr r12
+bctrl
+sth r3, 8(r1)
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+addis r4, r12, -1
+addi r4, r4, 0x5428
+lwz r5, 0(r4)
+lwz r6, 4(r4)
+rlwinm r5, r5, 16, 0, 15
+extsh r6, r6
+add r4, r5, r6
+lha r3, 8(r1)
+sth r3, 0(r4)
+extsh r3, r3
+cmpwi r3, 0
+blt dayNightScenery
+lis r4, 0x4000
+addi r4, r4, 1
+lis r12, 0x8016
+ori r12, r12, 0x9BC4    # MBModelAttrSet
+mtctr r12
+bctrl
+lha r3, 8(r1)
+lis r4, 0xBF80          # -1.0 cull
+stw r4, 0xC(r1)
+lfs f1, 0xC(r1)
+lis r12, 0x8016
+ori r12, r12, 0x9E48    # MBModelCullRadiusSet
+mtctr r12
+bctrl
+lha r3, 8(r1)
+lis r4, 0x3F80          # 1.0
+stw r4, 0xC(r1)
+lfs f1, 0xC(r1)
+lis r12, 0x8016
+ori r12, r12, 0xA980    # MBMotionSpeedSet
+mtctr r12
+bctrl
+lha r3, 8(r1)
+lis r4, 0
+stw r4, 0xC(r1)
+lfs f1, 0xC(r1)
+lis r12, 0x8016
+ori r12, r12, 0xA858    # MBMotionTimeSet
+mtctr r12
+bctrl
+lha r3, 8(r1)
+lis r4, 0x4000
+addi r4, r4, 1
+lis r12, 0x8016
+ori r12, r12, 0x9BC4    # MBModelAttrSet
+mtctr r12
+bctrl
+
+dayNightScenery:
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+addis r3, r12, -1
+addi r3, r3, 0x6758     # scenery create A
+mtctr r3
+bctrl
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+addis r3, r12, -1
+addi r3, r3, 0x7C08     # scenery create B
+mtctr r3
+bctrl
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+subi r3, r12, 0x6B44    # scenery create C
+mtctr r3
+bctrl
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+subi r3, r12, 0x51C0    # scenery create D
+mtctr r3
+bctrl
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+subi r3, r12, 0x2110    # path-mesh create
+mtctr r3
+bctrl
+
+lis r3, 0x802C
+ori r3, r3, 0x0D10      # TimeChangeHook
+lwz r12, 0(r3)
+subi r3, r12, 0x120     # castle light-model kill
+mtctr r3
+bctrl
+
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+subi r12, r12, 0xB3C    # castle light-model create
+lwz r3, 0x958(r12)
+lwz r4, 0x95C(r12)
+rlwinm r3, r3, 16, 0, 15
+extsh r4, r4
+add r3, r3, r4
+lwz r3, 0x40(r3)        # clock model the kill routine does not free
+extsh r3, r3
+cmpwi r3, 0
+blt dayNightClockCreate
+lis r12, 0x8016
+ori r12, r12, 0x9288    # MBModelKill
+mtctr r12
+bctrl
+
+dayNightClockCreate:
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+subi r12, r12, 0xB3C
+mtctr r12
+bctrl
+
+lis r4, 0x8026
+ori r4, r4, 0x5B70
+lbz r0, 0x10(r4)
+extrwi r3, r0, 1, 25
+cmpwi r3, 0
+bne dayNightDirCloseNight
+lis r3, 0xE1
+b dayNightDirClose
+dayNightDirCloseNight:
+lis r3, 0xE2
+dayNightDirClose:
+lis r12, 0x8000
+ori r12, r12, 0x97F4    # HuDataDirClose
+mtctr r12
+bctrl
+
+dayNightTelop:
 # mbMain cleanup after NextTime
 lis r3, 0x8020
 ori r3, r3, 0x67EC      # mbTelopTimeChangeKill
@@ -178,3 +455,273 @@ lis r12, 0x801D
 ori r12, r12, 0x6450
 mtctr r12
 bctr
+
+# Boards 0-4. Dirs run D7/D8, D9/DA, DB/DC, DD/DE, DF/E0.
+dayNightOther:
+stwu r1, -0x30(r1)
+mflr r0
+stw r0, 0x34(r1)
+stw r31, 0x2c(r1)
+stw r30, 0x28(r1)
+stw r29, 0x24(r1)
+stw r28, 0x20(r1)
+lis r4, 0x8026
+ori r4, r4, 0x5B70      # GwSystem
+lbz r3, 8(r4)
+clrlwi r3, r3, 0x1b     # board index
+cmpwi r3, 5
+bge dayNightOtherDone
+stw r3, 8(r1)
+bl dayNightBoardDir
+stw r3, 0xC(r1)
+bl dayNightOpenMasu
+cmpwi r3, 0
+beq dayNightOtherDone
+lwz r29, 8(r1)
+lwz r31, 0xC(r1)
+cmpwi r29, 0
+beq dayNightMesh0
+cmpwi r29, 1
+beq dayNightMesh1
+cmpwi r29, 2
+beq dayNightMesh2
+cmpwi r29, 3
+beq dayNightMesh3
+b dayNightMesh4
+
+dayNightMesh0:
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+lwz r5, -0xA60(r12)
+lwz r6, -0xA5C(r12)
+rlwinm r5, r5, 16, 0, 15
+extsh r6, r6
+add r30, r5, r6         # map model work
+stw r30, 0x1c(r1)
+mr r3, r30
+li r4, 4
+mr r5, r31
+bl dayNightReloadOne
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+lwz r5, -0x904(r12)
+lwz r6, -0x900(r12)
+rlwinm r5, r5, 16, 0, 15
+extsh r6, r6
+add r4, r5, r6
+lis r3, 0x8026
+ori r3, r3, 0x5B70
+lbz r0, 0x10(r3)
+extrwi r0, r0, 1, 25    # night list is the second pointer
+slwi r0, r0, 2
+lwzx r29, r4, r0
+stw r29, 0x18(r1)
+li r28, 0
+dayNightW01Loop:
+lwz r29, 0x18(r1)
+slwi r0, r28, 2
+lwzx r4, r29, r0
+cmplwi r4, 0
+beq dayNightW01File5
+clrlwi r4, r4, 0x10
+slwi r0, r28, 1
+addi r0, r0, 2
+lwz r3, 0x1c(r1)
+add r3, r3, r0
+lwz r5, 0xC(r1)
+stw r28, 0x14(r1)
+bl dayNightReloadOne
+lwz r28, 0x14(r1)
+addi r28, r28, 1
+b dayNightW01Loop
+dayNightW01File5:
+slwi r0, r28, 1
+addi r0, r0, 2
+lwz r3, 0x1c(r1)
+add r3, r3, r0
+li r4, 5
+lwz r5, 0xC(r1)
+stw r28, 0x14(r1)
+bl dayNightReloadOne
+lwz r28, 0x14(r1)
+lwz r3, 0x1c(r1)
+slwi r0, r28, 1
+addi r0, r0, 2
+lhax r3, r3, r0
+cmpwi r3, 0
+blt dayNightOtherClose
+li r4, 1
+lis r12, 0x8016
+ori r12, r12, 0x9530    # MBModelLayerSet
+mtctr r12
+bctrl
+b dayNightOtherClose
+
+dayNightMesh1:
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+lwz r5, -0x2E68(r12)
+lwz r6, -0x2E64(r12)
+rlwinm r5, r5, 16, 0, 15
+extsh r6, r6
+add r3, r5, r6
+li r4, 3
+mr r5, r31
+bl dayNightReloadOne
+b dayNightOtherClose
+
+dayNightMesh2:
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+lwz r5, -0x1B18(r12)
+lwz r6, -0x1B14(r12)
+rlwinm r5, r5, 16, 0, 15
+extsh r6, r6
+add r3, r5, r6
+li r4, 1
+mr r5, r31
+bl dayNightReloadOne
+b dayNightOtherClose
+
+dayNightMesh3:
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+lwz r5, -0x1334(r12)
+lwz r6, -0x1330(r12)
+rlwinm r5, r5, 16, 0, 15
+extsh r6, r6
+add r3, r5, r6
+li r4, 3
+mr r5, r31
+bl dayNightReloadOne
+b dayNightOtherClose
+
+dayNightMesh4:
+lis r3, 0x802C
+ori r3, r3, 0x0D10
+lwz r12, 0(r3)
+lwz r5, -0x1F10(r12)
+lwz r6, -0x1F0C(r12)
+rlwinm r5, r5, 16, 0, 15
+extsh r6, r6
+add r3, r5, r6
+li r4, 3
+mr r5, r31
+bl dayNightReloadOne
+
+dayNightOtherClose:
+lwz r3, 0xC(r1)
+lis r12, 0x8000
+ori r12, r12, 0x97F4    # HuDataDirClose
+mtctr r12
+bctrl
+
+dayNightOtherDone:
+lwz r28, 0x20(r1)
+lwz r29, 0x24(r1)
+lwz r30, 0x28(r1)
+lwz r31, 0x2c(r1)
+lwz r0, 0x34(r1)
+mtlr r0
+addi r1, r1, 0x30
+b dayNightTelop
+
+# r3 = board 0-4. Returns that board's directory for the current time.
+dayNightBoardDir:
+slwi r3, r3, 1
+addi r3, r3, 0xD7
+lis r4, 0x8026
+ori r4, r4, 0x5B70
+lbz r0, 0x10(r4)
+extrwi r0, r0, 1, 25
+add r3, r3, r0
+slwi r3, r3, 16
+blr
+
+# r3 = directory. Opens it and reloads the path. Returns 1, or 0 if the open failed.
+dayNightOpenMasu:
+stwu r1, -0x10(r1)
+mflr r0
+stw r0, 0x14(r1)
+stw r31, 0xC(r1)
+mr r31, r3
+lis r12, 0x8000
+ori r12, r12, 0x78C8    # HuDataDirRead
+mtctr r12
+bctrl
+cmpwi r3, 0
+beq dayNightOpenFail
+lis r12, 0x8020
+ori r12, r12, 0x0524    # MBGateClose
+mtctr r12
+bctrl
+lis r12, 0x8017
+ori r12, r12, 0x4FA0    # MBMasuClose
+mtctr r12
+bctrl
+mr r3, r31
+lis r12, 0x8017
+ori r12, r12, 0x4EBC    # MBMasuInit
+mtctr r12
+bctrl
+li r3, 1
+b dayNightOpenOut
+dayNightOpenFail:
+li r3, 0
+dayNightOpenOut:
+lwz r31, 0xC(r1)
+lwz r0, 0x14(r1)
+mtlr r0
+addi r1, r1, 0x10
+blr
+
+# r3 = halfword slot, r4 = file number, r5 = directory.
+dayNightReloadOne:
+stwu r1, -0x20(r1)
+mflr r0
+stw r0, 0x24(r1)
+stw r31, 0x1C(r1)
+stw r30, 0x18(r1)
+stw r29, 0x14(r1)
+mr r31, r3
+mr r30, r4
+mr r29, r5
+lha r3, 0(r31)
+cmpwi r3, 0
+blt dayNightReloadNew
+lis r12, 0x8016
+ori r12, r12, 0x9288    # MBModelKill
+mtctr r12
+bctrl
+dayNightReloadNew:
+mr r3, r29
+or r3, r3, r30
+li r4, 0
+li r5, 0
+lis r12, 0x8016
+ori r12, r12, 0x8DC4    # MBModelCreate
+mtctr r12
+bctrl
+sth r3, 0(r31)
+extsh r3, r3
+cmpwi r3, 0
+blt dayNightReloadOut
+lis r4, 0x4000
+addi r4, r4, 1
+lis r12, 0x8016
+ori r12, r12, 0x9BC4    # MBModelAttrSet
+mtctr r12
+bctrl
+dayNightReloadOut:
+lwz r29, 0x14(r1)
+lwz r30, 0x18(r1)
+lwz r31, 0x1C(r1)
+lwz r0, 0x24(r1)
+mtlr r0
+addi r1, r1, 0x20
+blr
