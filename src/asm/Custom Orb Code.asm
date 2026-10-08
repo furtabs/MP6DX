@@ -26,6 +26,39 @@ ori r3, r3, 0xE20C      # mbMusBoardPlay
 mtctr r3
 bctrl
 
+# Night has no day fog. Clear it first; LightSetHook puts the new fog back when the board uses one.
+lis r4, 0x8026
+ori r4, r4, 0x5B70      # GwSystem
+lbz r0, 0x10(r4)
+extrwi r3, r0, 1, 25    # curTime (1 = night)
+cmpwi r3, 0
+beq dayNightLightReset
+lis r12, 0x8002
+ori r12, r12, 0xA30C    # Hu3DFogClear
+mtctr r12
+bctrl
+
+dayNightLightReset:
+# Paired with LightSetHook. No-op on most boards; Clockwork Castle kills its day/night NPC so Set can rebuild it.
+lis r3, 0x802C
+ori r3, r3, 0x0D00      # LightResetHook
+lwz r12, 0(r3)
+cmplwi r12, 0
+beq dayNightLightSet
+mtctr r12
+bctrl
+
+dayNightLightSet:
+# Board fog, background, and model light for the time bit MBTimeChange just wrote.
+lis r3, 0x802C
+ori r3, r3, 0x0CFC      # LightSetHook
+lwz r12, 0(r3)
+cmplwi r12, 0
+beq dayNightCam
+mtctr r12
+bctrl
+
+dayNightCam:
 # Save camera (same pattern as last-5 mid-board effects)
 lis r3, 0x8015
 ori r3, r3, 0x0EAC      # mbCameraStackPush
