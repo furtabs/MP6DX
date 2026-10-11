@@ -405,20 +405,26 @@ sth r0, -0x7468(r13)    # GwMgTime@sda21
 b finishCustomCapsule
 
 chompyOrb:
-stwu r1, -0x50(r1)
+stwu r1, -0x60(r1)
 mflr r0
-stw r0, 0x54(r1)
+stw r0, 0x64(r1)
 stw r31, 0x4c(r1)
 stw r30, 0x48(r1)
 stw r29, 0x44(r1)
 stw r28, 0x40(r1)
-# The fly-over only exists on Towering Treetop and E. Gadd's Garage.
+# Host fly-over is only on Towering Treetop and E. Gadd's Garage.
 lis r3, 0x8026
 ori r3, r3, 0x5B70      # GwSystem
-lbz r3, 8(r3)
-clrlwi r3, r3, 27
-cmpwi r3, 2
+lbz r4, 8(r3)
+clrlwi r4, r4, 27
+cmpwi r4, 2
 bge chompyHookOnly
+lbz r4, 0xA(r3)
+extsb r4, r4
+stw r4, 0x34(r1)
+lbz r0, 0x10(r3)
+extrwi r0, r0, 1, 25
+stw r0, 0x38(r1)
 lis r3, 0x802C
 ori r3, r3, 0x0E6C      # StarMoveHook
 lwz r3, 0(r3)
@@ -428,21 +434,38 @@ lwz r3, -0x6860(r13)    # StarMasuNext, still the old space
 extsh r31, r3
 cmpwi r31, 0
 blt chompyHookOnly
+stw r31, 0x30(r1)
 mr r3, r31
-addi r4, r1, 0x20
+addi r4, r1, 8
 lis r12, 0x8017
 ori r12, r12, 0x7948    # MBMasuPosGet
+mtctr r12
+bctrl
+lis r3, 1
+addi r3, r3, 0x1c
+lis r12, 0x8006
+ori r12, r12, 0xA1C4    # _SetFlag
+mtctr r12
+bctrl
+lis r3, 0x8018
+ori r3, r3, 0x399C      # StarPauseHook
+lis r12, 0x8019
+ori r12, r12, 0x1D14    # MBPauseHookPush
 mtctr r12
 bctrl
 lis r12, 0x8020
 ori r12, r12, 0x68F8    # MBWipeFadeOut
 mtctr r12
 bctrl
+bl chompyCallHook
+lwz r31, 0x30(r1)
+lwz r3, -0x6860(r13)
+extsh r30, r3
 li r29, 0
 chompyKillOld:
 slwi r0, r29, 2
 lis r3, 0x802B
-ori r3, r3, 0xA368      # star object table
+ori r3, r3, 0xA368
 lwzx r3, r3, r0
 cmplwi r3, 0
 beq chompyKillNext
@@ -450,12 +473,6 @@ lwz r4, 0x5c(r3)
 lwz r0, 0xc(r4)
 cmpw r0, r31
 bne chompyKillNext
-mr r3, r29
-li r4, 0
-lis r12, 0x8017
-ori r12, r12, 0xF720    # MBStarObjDispSet
-mtctr r12
-bctrl
 mr r3, r29
 lis r12, 0x8017
 ori r12, r12, 0xF6E4    # MBStarObjKill
@@ -470,19 +487,16 @@ lis r12, 0x8000
 ori r12, r12, 0xE26C    # HuPrcSleep
 mtctr r12
 bctrl
-bl chompyCallHook
-lwz r3, -0x6860(r13)
-extsh r30, r3
 cmpw r30, r31
 beq chompyNoMove
 mr r3, r30
-addi r4, r1, 0x2c
+addi r4, r1, 0x14
 lis r12, 0x8017
 ori r12, r12, 0x7948    # MBMasuPosGet
 mtctr r12
 bctrl
 li r3, -1
-stw r3, 0x38(r1)
+stw r3, 0x2c(r1)
 li r29, 0
 chompyFind:
 slwi r0, r29, 2
@@ -494,64 +508,30 @@ beq chompyFindNext
 lwz r4, 0x5c(r3)
 lwz r0, 0xc(r4)
 cmpw r0, r30
-beq chompyFound
-chompyFindNext:
-addi r29, r29, 1
-cmpwi r29, 0x3e7
-blt chompyFind
-b chompyFrame
-chompyFound:
-stw r29, 0x38(r1)
+bne chompyFindNext
+stw r29, 0x2c(r1)
 mr r3, r29
 li r4, 0
 lis r12, 0x8017
 ori r12, r12, 0xF720    # MBStarObjDispSet
 mtctr r12
 bctrl
-chompyFrame:
-lis r3, 0x8026
-ori r3, r3, 0x5B70      # GwSystem
-lbz r0, 0x10(r3)
-extrwi r28, r0, 1, 25   # 0 day, 1 night
-lbz r3, 0xA(r3)
-extsb r29, r3
-cmpwi r29, 0
-blt chompyHost
-cmpwi r29, 4
-bge chompyHost
-mr r3, r29
-li r4, 1
-lfs f1, -0x59dc(r2)
-lfs f2, -0x59d8(r2)
-lis r5, 0x4000
-addi r5, r5, 1
-lis r12, 0x8015
-ori r12, r12, 0xC584    # MBPlayerMotionShiftSet
-mtctr r12
-bctrl
-mr r3, r29
-li r4, 2
-lis r12, 0x8015
-ori r12, r12, 0x3264    # MBCameraViewWarp
-mtctr r12
-bctrl
+b chompyHost
+chompyFindNext:
+addi r29, r29, 1
+cmpwi r29, 0x3e7
+blt chompyFind
 chompyHost:
-lis r3, 0x8018
-ori r3, r3, 0x399C      # StarPauseHook
-lis r12, 0x8019
-ori r12, r12, 0x1D14    # MBPauseHookPush
-mtctr r12
-bctrl
 lis r3, 0x8024
 ori r3, r3, 0x7F84      # StarMasuGuidePos
 li r4, 4
-addi r5, r1, 8
+addi r5, r1, 0x20
 lis r12, 0x8014
 ori r12, r12, 0xDCDC    # MBPosNormto3D
 mtctr r12
 bctrl
-addi r3, r1, 8
-addi r4, r13, -0x7a0f   # StarMasuGuideMotTbl
+addi r3, r1, 0x20
+addi r4, r13, -0x7A0F   # StarMasuGuideMotTbl
 li r5, 1
 li r6, 0
 li r7, 1
@@ -592,43 +572,44 @@ mtctr r12
 bctrl
 lwz r3, -0x6868(r13)
 cmplwi r3, 0
-beq chompyLine
+beq chompyWin1
 li r4, 0xc
 li r5, 1
 lis r12, 0x801E
 ori r12, r12, 0xD064    # MBGuideMotionShiftSet
 mtctr r12
 bctrl
-chompyLine:
+chompyWin1:
 li r3, 4
-addis r4, r28, 0x27
+lwz r4, 0x38(r1)
+addis r4, r4, 0x27
 addi r4, r4, 0xc
 li r5, -1
 lis r12, 0x8016
 ori r12, r12, 0xBE40    # MBWinCreateTime
 mtctr r12
 bctrl
-mr r29, r3
-extsh r3, r29
+mr r28, r3
+extsh r3, r28
 lis r12, 0x8016
 ori r12, r12, 0xCB24    # MBWinPause
 mtctr r12
 bctrl
-addi r3, r1, 0x20
-addi r4, r1, 0x2c
+addi r3, r1, 8
+addi r4, r1, 0x14
 li r5, 0x78
 lis r12, 0x8017
 ori r12, r12, 0x26A4    # MBStarScrollExec
 mtctr r12
 bctrl
-extsh r3, r29
+extsh r3, r28
 lis r12, 0x8016
 ori r12, r12, 0xBFE8    # MBWinKill
 mtctr r12
 bctrl
-lwz r29, 0x38(r1)
+lwz r29, 0x2c(r1)
 cmpwi r29, 0
-blt chompyAfterStar
+blt chompyWin2
 mr r3, r29
 li r4, 1
 lis r12, 0x8017
@@ -640,8 +621,18 @@ lis r3, 0x802B
 ori r3, r3, 0xA368
 lwzx r3, r3, r0
 cmplwi r3, 0
-beq chompyAfterStar
+beq chompyWin2
 lwz r31, 0x5c(r3)
+li r3, 0x447
+lis r12, 0x8017
+ori r12, r12, 0x0454    # MBAudFXPlay
+mtctr r12
+bctrl
+li r3, 0x448
+lis r12, 0x8017
+ori r12, r12, 0x0454    # MBAudFXPlay
+mtctr r12
+bctrl
 li r3, 1
 lbz r0, 0(r31)
 rlwimi r0, r3, 6, 25, 25
@@ -655,8 +646,8 @@ lbz r0, 0(r31)
 rlwimi r0, r3, 3, 28, 28
 stb r0, 0(r31)
 li r0, 0
-stw r0, 0x1c(r1)
-lfs f0, 0x1c(r1)
+stw r0, 0x3c(r1)
+lfs f0, 0x3c(r1)
 stfs f0, 0x40(r31)
 li r3, 1
 lbz r0, 0(r31)
@@ -666,17 +657,6 @@ li r3, 1
 lbz r0, 0(r31)
 rlwimi r0, r3, 2, 29, 29
 stb r0, 0(r31)
-li r3, 0x447
-lis r12, 0x8017
-ori r12, r12, 0x0454    # MBAudFXPlay
-mtctr r12
-bctrl
-stw r3, 0x18(r1)
-li r3, 0x448
-lis r12, 0x8017
-ori r12, r12, 0x0454    # MBAudFXPlay
-mtctr r12
-bctrl
 lbz r0, 0(r31)
 rlwinm r0, r0, 28, 31, 31
 cmplwi r0, 1
@@ -699,17 +679,12 @@ lbz r0, 0x14(r31)
 extsb r0, r0
 cmpwi r0, 1
 bne chompyWait
-lwz r3, 0x18(r1)
-lis r12, 0x8017
-ori r12, r12, 0x052C    # MBAudFXStop
-mtctr r12
-bctrl
-chompyAfterStar:
 li r3, 0x14
 lis r12, 0x8000
 ori r12, r12, 0xE26C    # HuPrcSleep
 mtctr r12
 bctrl
+chompyWin2:
 li r3, 0x3b8
 lis r12, 0x8017
 ori r12, r12, 0x0980    # MBAudGuidePlay
@@ -717,16 +692,17 @@ mtctr r12
 bctrl
 lwz r3, -0x6868(r13)
 cmplwi r3, 0
-beq chompyLine2
+beq chompyWin2Mes
 li r4, 0xc
 li r5, 1
 lis r12, 0x801E
 ori r12, r12, 0xD064    # MBGuideMotionShiftSet
 mtctr r12
 bctrl
-chompyLine2:
+chompyWin2Mes:
 li r3, 4
-addis r4, r28, 0x27
+lwz r4, 0x38(r1)
+addis r4, r4, 0x27
 addi r4, r4, 0xe
 li r5, -1
 lis r12, 0x8016
@@ -743,31 +719,31 @@ lis r12, 0x8016
 ori r12, r12, 0xE640    # MBMusFadeOutSpeed
 mtctr r12
 bctrl
+chompyNoMove:
 lis r12, 0x8020
 ori r12, r12, 0x68F8    # MBWipeFadeOut
 mtctr r12
 bctrl
-lis r4, 0x8026
-ori r4, r4, 0x5B70
-lbz r3, 0xA(r4)
-extsb r3, r3
+lwz r3, 0x34(r1)
 cmpwi r3, 0
-blt chompyHudOn
+blt chompyKillHost
 cmpwi r3, 4
-bge chompyHudOn
-stw r3, 0x18(r1)
-li r4, 2
-lis r12, 0x8015
-ori r12, r12, 0x3264    # MBCameraViewWarp
-mtctr r12
-bctrl
-lwz r3, 0x18(r1)
+bge chompyKillHost
 li r4, 0
 lis r12, 0x8018
 ori r12, r12, 0xD114    # MBStatusDispForceSet
 mtctr r12
 bctrl
-chompyHudOn:
+lwz r3, 0x34(r1)
+lis r12, 0x8015
+ori r12, r12, 0x154C    # MBCameraFocusPlayerSet
+mtctr r12
+bctrl
+lis r12, 0x8015
+ori r12, r12, 0x2FC4    # MBCameraMotionWait
+mtctr r12
+bctrl
+chompyKillHost:
 li r3, 1
 lis r12, 0x8018
 ori r12, r12, 0xD3E8    # MBStatusDispForceSetAll
@@ -775,19 +751,19 @@ mtctr r12
 bctrl
 li r3, 1
 lis r12, 0x8018
-ori r12, r12, 0xD3E8    # MBStatusDispForceSetAll
+ori r12, r12, 0xD3E8
 mtctr r12
 bctrl
 lwz r3, -0x6868(r13)
 cmplwi r3, 0
-beq chompyGuideClear
+beq chompyMusBack
 lis r12, 0x801E
 ori r12, r12, 0xCC84    # MBGuideKill
 mtctr r12
 bctrl
-chompyGuideClear:
 li r0, 0
 stw r0, -0x6868(r13)
+chompyMusBack:
 li r3, 0x3c
 lis r12, 0x8000
 ori r12, r12, 0xE26C    # HuPrcSleep
@@ -803,26 +779,14 @@ lis r12, 0x8019
 ori r12, r12, 0x1D38    # MBPauseHookPop
 mtctr r12
 bctrl
-chompyNoMove:
 lis r12, 0x8020
 ori r12, r12, 0x6988    # MBWipeFadeIn
 mtctr r12
 bctrl
-chompyFocus:
-lis r4, 0x8026
-ori r4, r4, 0x5B70      # GwSystem
-lbz r3, 0xA(r4)
-extsb r3, r3
-cmpwi r3, 0
-blt chompyDone
-cmpwi r3, 4
-bge chompyDone
-lis r12, 0x8015
-ori r12, r12, 0x154C    # MBCameraFocusPlayerSet
-mtctr r12
-bctrl
-lis r12, 0x8015
-ori r12, r12, 0x2FC4    # MBCameraMotionWait
+lis r3, 1
+addi r3, r3, 0x1c
+lis r12, 0x8006
+ori r12, r12, 0xA268    # _ClearFlag
 mtctr r12
 bctrl
 b chompyDone
@@ -833,9 +797,9 @@ lwz r28, 0x40(r1)
 lwz r29, 0x44(r1)
 lwz r30, 0x48(r1)
 lwz r31, 0x4c(r1)
-lwz r0, 0x54(r1)
+lwz r0, 0x64(r1)
 mtlr r0
-addi r1, r1, 0x50
+addi r1, r1, 0x60
 b finishCustomCapsule
 
 chompyCallHook:
